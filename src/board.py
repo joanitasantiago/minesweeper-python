@@ -35,13 +35,19 @@ class Board:
         if bombs > maxBombs:
             raise ValueError(f"Número de bombas ({bombs}) excede o limite de {maxBombs} células!")
         
-    def distribute_bombs(self, bombs):
+    def distribute_bombs(self, bombs, exclude=None):
         self.validate_bomb_limit(bombs)
         
         i = 0
         while (i < bombs):
             newRow = random.randint(0, self.maxRows - 1)
             newColumn = random.randint(0, self.maxColumns - 1)
+
+            # Garante que a célula excluída não receberá uma bomba independentemente de como o 
+            # método seja chamado ou da ordem de execução. Ele adiciona uma camada de segurança
+            # ao código, tornando-o mais robusto e menos propenso a erros futuros.
+            if exclude and (newRow, newColumn) == exclude:
+                continue
 
             if not self.cells[newRow][newColumn].isOpen and not self.cells[newRow][newColumn].hasBomb:
                 self.cells[newRow][newColumn].hasBomb = True
@@ -58,12 +64,11 @@ class Board:
                 self.cells[row][column].open_cell()
     
     def check_if_all_safe_cells_are_open(self):
-        validation = True
         for row in range(self.maxRows):
             for column in range(self.maxColumns):
-                if self.cells[row][column].hasBomb == False and self.cells[row][column].isOpen == False:
-                    validation = False
-        return validation
+                if not self.cells[row][column].hasBomb and not self.cells[row][column].isOpen:
+                    return False
+        return True
 
     def print_board(self):
         self.print_column_index()
