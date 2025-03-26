@@ -1,0 +1,1 @@
+    # assert isinstance(board.cells[8][8], Cell)
